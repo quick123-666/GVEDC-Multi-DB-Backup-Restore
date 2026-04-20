@@ -1,0 +1,17 @@
+# 还原配置示例
+databases:
+  # ChromaDB数据库还原
+  - name: chromadb_main
+    type: chromadb
+    # 备份文件路径
+    backup_file: backups/chromadb_main_2026-04-20.chroma
+    # 还原目标路径
+    path: /path/to/chroma
+  
+  # SQLite数据库还原
+  - name: sqlite_db
+    type: sqlite
+    # 备份文件路径
+    backup_file: backups/sqlite_db_2026-04-20.sqlite
+    # 还原目标路径
+    path: /path/to/database.db

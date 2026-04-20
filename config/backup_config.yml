@@ -1,0 +1,25 @@
+# 备份配置示例
+global:
+  # 压缩级别 (1-9)
+  compression_level: 9
+  # 是否使用并行处理
+  parallel: true
+  # 是否验证备份
+  verify: true
+
+databases:
+  # ChromaDB数据库备份
+  - name: chromadb_main
+    type: chromadb
+    # 数据库路径
+    path: /path/to/chroma
+    # 备份输出路径 (支持$(date)占位符)
+    output: backups/chromadb_main_$(date).chroma
+  
+  # SQLite数据库备份
+  - name: sqlite_db
+    type: sqlite
+    # 数据库文件路径
+    path: /path/to/database.db
+    # 备份输出路径
+    output: backups/sqlite_db_$(date).sqlite
