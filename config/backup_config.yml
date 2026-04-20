@@ -14,7 +14,9 @@ databases:
     # 数据库路径
     path: C:\Users\Administrator\Documents\trae_projects\635416546534\Graph-Vector-Encyclopedia-Database-Context
     # 备份输出路径 (支持$(date)占位符)
-    output: backups/chromadb_main_$(date).chroma
+    output: D:\GVEDC-Backups\chromadb_main_$(date).chroma
+    # 是否执行增量备份
+    incremental: true
   
   # 新数据库备份
   - name: gvedc_trading
@@ -22,4 +24,6 @@ databases:
     # 数据库路径
     path: C:\Users\Administrator\Documents\trae_projects\635416546534\GVEDC-trading-stocks-refine\db
     # 备份输出路径
-    output: backups/gvedc_trading_$(date).chroma
+    output: D:\GVEDC-Backups\gvedc_trading_$(date).chroma
+    # 是否执行增量备份
+    incremental: true

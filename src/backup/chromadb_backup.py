@@ -7,6 +7,7 @@ import shutil
 import concurrent.futures
 
 from backup.base_backup import BaseBackup
+from backup.incremental_backup import IncrementalBackupManager
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 class ChromaDBBackup(BaseBackup):
     """ChromaDB备份类"""
     
-    def __init__(self, db_path, output_path, compression_level=9, parallel=True):
+    def __init__(self, db_path, output_path, compression_level=9, parallel=True, incremental=False, db_name=None):
         """
         初始化ChromaDB备份实例
         
@@ -23,9 +24,14 @@ class ChromaDBBackup(BaseBackup):
             output_path: 备份文件输出路径
             compression_level: 压缩级别 (1-9)
             parallel: 是否使用并行处理
+            incremental: 是否执行增量备份
+            db_name: 数据库名称（用于增量备份元数据）
         """
         super().__init__(db_path, output_path, compression_level)
         self.parallel = parallel
+        self.incremental = incremental
+        self.db_name = db_name
+        self.incremental_manager = IncrementalBackupManager() if incremental and db_name else None
     
     def backup(self):
         """执行ChromaDB备份"""
@@ -39,6 +45,26 @@ class ChromaDBBackup(BaseBackup):
             
             # 收集需要备份的文件
             files_to_backup = self._collect_files()
+            
+            # 处理增量备份
+            if self.incremental and self.incremental_manager:
+                # 获取变化的文件
+                changed_files = self.incremental_manager.get_changed_files(self.db_path, self.db_name)
+                
+                if not changed_files:
+                    logger.info(f"没有检测到变化的文件，跳过备份: {self.db_name}")
+                    return
+                
+                # 过滤出需要备份的变化文件
+                files_to_backup = []
+                for root, dirs, files in os.walk(self.db_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        relative_path = os.path.relpath(file_path, self.db_path)
+                        if relative_path in changed_files:
+                            files_to_backup.append(file_path)
+                
+                logger.info(f"增量备份: 检测到 {len(files_to_backup)} 个变化的文件")
             
             # 复制文件到临时目录
             self._copy_files(files_to_backup)
@@ -57,6 +83,12 @@ class ChromaDBBackup(BaseBackup):
             
             # 压缩备份
             self._compress_backup(temp_files, self.output_path)
+            
+            # 保存增量备份元数据
+            if self.incremental and self.incremental_manager:
+                file_metadata = self.incremental_manager._collect_file_metadata(self.db_path)
+                self.incremental_manager.save_backup_metadata(self.db_name, file_metadata)
+                logger.info(f"已保存增量备份元数据: {self.db_name}")
             
             logger.info(f"ChromaDB备份成功: {self.output_path}")
             

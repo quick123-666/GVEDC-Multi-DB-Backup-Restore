@@ -47,12 +47,17 @@ def backup(args):
             logger.info(f"开始备份数据库: {db_name} ({db_type})")
             
             try:
+                # 检查是否需要增量备份
+                incremental = db_config.get('incremental', False)
+                
                 if db_type == 'chromadb':
                     backup_instance = ChromaDBBackup(
                         db_path=db_path,
                         output_path=output,
                         compression_level=global_config.get('compression_level', 9),
-                        parallel=global_config.get('parallel', True)
+                        parallel=global_config.get('parallel', True),
+                        incremental=incremental,
+                        db_name=db_name
                     )
                     backup_instance.backup()
                 elif db_type == 'sqlite':
