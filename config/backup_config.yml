@@ -12,14 +12,14 @@ databases:
   - name: chromadb_main
     type: chromadb
     # 数据库路径
-    path: /path/to/chroma
+    path: C:\Users\Administrator\Documents\trae_projects\635416546534\Graph-Vector-Encyclopedia-Database-Context
     # 备份输出路径 (支持$(date)占位符)
     output: backups/chromadb_main_$(date).chroma
   
-  # SQLite数据库备份
-  - name: sqlite_db
-    type: sqlite
-    # 数据库文件路径
-    path: /path/to/database.db
+  # 新数据库备份
+  - name: gvedc_trading
+    type: chromadb
+    # 数据库路径
+    path: C:\Users\Administrator\Documents\trae_projects\635416546534\GVEDC-trading-stocks-refine\db
     # 备份输出路径
-    output: backups/sqlite_db_$(date).sqlite
+    output: backups/gvedc_trading_$(date).chroma

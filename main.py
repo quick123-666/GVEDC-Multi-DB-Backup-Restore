@@ -78,6 +78,9 @@ def backup(args):
                 logger.error(f"备份失败: {str(e)}")
     else:
         # 单个数据库备份
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        
         if args.db_type == 'chromadb':
             backup_instance = ChromaDBBackup(
                 db_path=args.db_path,
